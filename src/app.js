@@ -14,6 +14,14 @@ app.use(cors({
     credentials: true
 }))
 
+app.options("/{*path}", cors({
+    origin: [
+        "http://localhost:5173",
+        "https://resume-builder-frontend-plum.vercel.app"
+    ],
+    credentials: true
+}))
+
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to the Interview Scheduler API" })
 })

@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
-const puppeteer = require("puppeteer")
+const PDFDocument = require("pdfkit")
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
@@ -58,22 +58,19 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 
 async function generatePdfFromHtml(htmlContent) {
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
-
-    const pdfBuffer = await page.pdf({
-        format: "A4", margin: {
-            top: "20mm",
-            bottom: "20mm",
-            left: "15mm",
-            right: "15mm"
-        }
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument()
+        const buffers = []
+        
+        doc.on("data", chunk => buffers.push(chunk))
+        doc.on("end", () => resolve(Buffer.concat(buffers)))
+        doc.on("error", reject)
+        
+        // HTML tags hata ke plain text nikalo
+        const plainText = htmlContent.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+        doc.fontSize(12).text(plainText)
+        doc.end()
     })
-
-    await browser.close()
-
-    return pdfBuffer
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {

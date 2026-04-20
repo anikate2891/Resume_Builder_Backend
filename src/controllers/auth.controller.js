@@ -42,7 +42,12 @@ async function registerUserController(req, res) {
         { expiresIn: "1d" }
     )
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,        // ← HTTPS ke liye zaroori
+        sameSite: "none",    // ← cross-origin cookies ke liye zaroori
+        maxAge: 24 * 60 * 60 * 1000  // 1 din
+    })
 
 
     res.status(201).json({
@@ -88,7 +93,12 @@ async function loginUserController(req, res) {
         { expiresIn: "1d" }
     )
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,        // ← HTTPS ke liye zaroori
+        sameSite: "none",    // ← cross-origin cookies ke liye zaroori
+        maxAge: 24 * 60 * 60 * 1000  // 1 din
+    })
     res.status(200).json({
         message: "User loggedIn successfully.",
         user: {
